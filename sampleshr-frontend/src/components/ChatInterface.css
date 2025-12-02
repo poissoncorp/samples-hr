@@ -1,12 +1,14 @@
-/* ChatInterface Styles */
+﻿/* ChatInterface Styles */
 
 .chat-container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100%;
+    flex: 1;
+    min-width: 0;
     max-width: 900px;
-    margin: 0 auto;
     background: var(--background-primary);
+    overflow: hidden;
 }
 
 .header {
@@ -299,3 +301,4 @@
     color: var(--text-secondary);
     font-style: italic;
 }
+

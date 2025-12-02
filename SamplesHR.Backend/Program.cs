@@ -1,6 +1,8 @@
 using SamplesHR.Backend.Application.Usage;
+using SamplesHR.Backend.Hubs;
 using SamplesHR.Backend.Infrastructure.Middleware;
 using SamplesHR.Backend.Infrastructure.RavenDB;
+using SamplesHR.Backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,9 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Add SignalR
+builder.Services.AddSignalR();
+
 // Add ASP.NET controllers
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -40,6 +45,9 @@ builder.Services.AddSingleton<GlobalApiUsageLimiter>();
 
 builder.Services.AddSingleton<SessionApiUsageTracker>();
 builder.Services.AddSingleton<GlobalApiUsageTracker>();
+
+builder.Services.AddSingleton<UsageStatsBroadcaster>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<UsageStatsBroadcaster>());
 
 builder.Services.AddHttpContextAccessor(); // needed by UsageLimiter
 
@@ -63,5 +71,7 @@ app.UseWhen(
     });
 
 app.MapControllers();
+
+app.MapHub<UsageStatsHub>("/hubs/usage");
 
 app.Run();

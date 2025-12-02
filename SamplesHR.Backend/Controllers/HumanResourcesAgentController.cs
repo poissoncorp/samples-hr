@@ -130,7 +130,7 @@ namespace SamplesHR.Backend.Controllers
                 if (result is not null)
                 {
                     await usageTracker.TrackAsync(HttpContext, result.Usage);
-                    await globalUsageTracker.TrackGlobalAsync(result.Usage);
+                    await globalUsageTracker.TrackGlobalAsync(HttpContext, result.Usage);
                 }
 
                 // Send the final result as a custom event

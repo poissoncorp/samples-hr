@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { hrApi, ChatRequest, ChatResponse, EmployeeDropdown, RateLimitError, RateLimitErrorCode } from '../api';
 import { SignatureDialog } from './SignatureDialog';
+import { RateLimitAlert } from './UsageCharts';
 import './ChatInterface.css';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -13,7 +14,11 @@ interface Message {
   followups?: string[];
 }
 
-export const ChatInterface: React.FC = () => {
+interface ChatInterfaceProps {
+  onRateLimitError?: (alert: RateLimitAlert) => void;
+}
+
+export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onRateLimitError }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [employees, setEmployees] = useState<EmployeeDropdown[]>([]);
@@ -265,10 +270,12 @@ Hello, **${employee.name}**, how can I help you today?`,
         console.log(err);
         if (err instanceof RateLimitError) {
           const isSession = err.response.code === RateLimitErrorCode.SessionLimitExceeded;
-          alert(isSession
-            ? `⚠️ ${err.response.message}`
-            : `🚨 ${err.response.message}`
-          );
+          if (onRateLimitError) {
+            onRateLimitError({
+              message: err.response.message,
+              isSession
+            });
+          }
           setMessages(prev => prev.filter(m => m.id !== botMessageId));
         } else {
           setMessages(prev => prev.map(m =>

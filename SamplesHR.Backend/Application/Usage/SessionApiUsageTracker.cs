@@ -12,7 +12,7 @@ public class SessionApiUsageTracker(IDocumentStore store)
 
         using var session = store.OpenAsyncSession();
 
-        var id = $"ApiUsageSession/{sessionId}";
+        var id = Constants.DocumentIds.SessionApiUsage(sessionId);
         var doc = await session.LoadAsync<SessionApiUsage>(id);
 
         if (doc == null)
@@ -39,15 +39,15 @@ public class SessionApiUsageTracker(IDocumentStore store)
             await session.StoreAsync(doc);
         }
 
-        session.TimeSeriesFor(doc, "Requests")
+        session.TimeSeriesFor(doc, Constants.TimeSeries.Requests)
             .Append(DateTime.UtcNow, 1);
 
         session.CountersFor(doc)
             .Increment("TotalCompletionTokens", usage.CompletionTokens);
-        
+
         session.CountersFor(doc)
             .Increment("TotalPromptTokens", usage.PromptTokens);
-        
+
         session.CountersFor(doc)
             .Increment("TotalCachedTokens", usage.CachedTokens);
 

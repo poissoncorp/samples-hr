@@ -29,7 +29,7 @@ public class RavenInitializer(IDocumentStore store) : IHostedService
         ModelType = AiModelType.Chat,
         OpenAiSettings = new OpenAiSettings
         {
-            ApiKey = Environment.GetEnvironmentVariable("SAMPLES_HR_OPENAI_API_KEY"),
+            ApiKey = Environment.GetEnvironmentVariable(Constants.EnvVars.OpenAiApiKey),
             Model = "gpt-5-mini",
             Endpoint = "https://api.openai.com/v1",
         }

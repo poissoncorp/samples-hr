@@ -9,29 +9,26 @@ public class SessionApiUsageLimiter
     private readonly int _maxRequestsPer30Seconds;
     private readonly IDocumentStore _store;
 
-    private const string MaxRequestsPer30SecEnvVar = 
-        "SAMPLES_HR_MAX_SESSION_REQUESTS_PER_30_SECONDS";
+    public int MaxRequestsPer30Seconds => _maxRequestsPer30Seconds;
 
     public SessionApiUsageLimiter(IDocumentStore store)
     {
         _store = store;
-        
-        var raw = Environment.GetEnvironmentVariable(MaxRequestsPer30SecEnvVar);
+
+        var raw = Environment.GetEnvironmentVariable(Constants.EnvVars.MaxSessionRequestsPer30Seconds);
         if (string.IsNullOrWhiteSpace(raw))
             throw new InvalidOperationException(
-                $"Missing \"{MaxRequestsPer30SecEnvVar}\" environment variable.");
+                $"Missing \"{Constants.EnvVars.MaxSessionRequestsPer30Seconds}\" environment variable.");
 
         if (!int.TryParse(raw, out _maxRequestsPer30Seconds))
             throw new InvalidOperationException(
-                $"Invalid integer in \"{MaxRequestsPer30SecEnvVar}\": {raw}");
+                $"Invalid integer in \"{Constants.EnvVars.MaxSessionRequestsPer30Seconds}\": {raw}");
     }
 
     public async Task EnsureAllowedAsync(string sessionId)
     {
-        var id = $"ApiUsageSession/{sessionId}";
-
         var result = await _store.Operations.SendAsync(
-            new GetTimeSeriesOperation(id, "Requests",
+            new GetTimeSeriesOperation(Constants.DocumentIds.SessionApiUsage(sessionId), Constants.TimeSeries.Requests,
                 DateTime.UtcNow.AddSeconds(-30),
                 DateTime.UtcNow));
 

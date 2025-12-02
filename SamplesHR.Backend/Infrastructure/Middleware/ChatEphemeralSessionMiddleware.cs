@@ -2,15 +2,13 @@ namespace SamplesHR.Backend.Infrastructure.Middleware;
 
 public class ChatEphemeralSessionMiddleware(RequestDelegate next)
 {
-    private const string CookieName = "samples-hr-session-id";
-
     public async Task InvokeAsync(HttpContext http)
     {
-        if (!http.Request.Cookies.TryGetValue(CookieName, out var sessionId))
+        if (!http.Request.Cookies.TryGetValue(Constants.Cookies.SessionId, out var sessionId))
         {
             sessionId = Guid.NewGuid().ToString();
 
-            http.Response.Cookies.Append(CookieName, sessionId, new CookieOptions
+            http.Response.Cookies.Append(Constants.Cookies.SessionId, sessionId, new CookieOptions
             {
                 HttpOnly = true,
                 SameSite = SameSiteMode.Lax,
